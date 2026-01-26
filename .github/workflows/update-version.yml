@@ -7,6 +7,8 @@ on:
         description: 'Versão do Core que disparou o update'
         required: false
         default: ''
+  repository_dispatch:
+    types: [core-release]
 
 jobs:
   update-version:
@@ -27,11 +29,12 @@ jobs:
       - name: Atualizar submódulo core
         run: |
           git submodule update --remote --merge core
-          if git diff --name-only HEAD | grep -q "core"; then
+          if git status --porcelain | grep -q "core"; then
             echo "true" > .core_updated
           else
             echo "false" > .core_updated
           fi
+
 
       - name: Incrementar patch com base no core
         run: |
@@ -43,16 +46,25 @@ jobs:
 
           CORE_UPDATED=$(cat $CORE_UPDATED_FILE)
 
-          CORE_VERSION=$(cat $CORE_VERSION_FILE | awk '{print $2}')
+          if [ -f "$CORE_VERSION_FILE" ]; then
+            CORE_VERSION=$(awk '{print $2}' "$CORE_VERSION_FILE")
+          else
+            CORE_VERSION="unknown"
+          fi
+
           INPUT_CORE_VERSION="${{ github.event.inputs.core_version }}"
-          if [ -n "$INPUT_CORE_VERSION" ]; then
+          DISPATCH_CORE_VERSION="${{ github.event.client_payload.core_version }}"
+
+          if [ -n "$DISPATCH_CORE_VERSION" ]; then
+            CORE_VERSION="$DISPATCH_CORE_VERSION"
+          elif [ -n "$INPUT_CORE_VERSION" ]; then
             CORE_VERSION="$INPUT_CORE_VERSION"
           fi
 
           ONLINE_CODENAME="Ataraxia"
-          if [ -f $ONLINE_VERSION_FILE ]; then
-            ONLINE_CODENAME=$(cat $ONLINE_VERSION_FILE | awk '{print $1}')
-            ONLINE_VERSION=$(cat $ONLINE_VERSION_FILE | awk '{print $2}')
+          if [ -f "$ONLINE_VERSION_FILE" ]; then
+            ONLINE_CODENAME=$(awk '{print $1}' "$ONLINE_VERSION_FILE")
+            ONLINE_VERSION=$(awk '{print $2}' "$ONLINE_VERSION_FILE")
             IFS='.' read -r X Y Z <<< "$ONLINE_VERSION"
           else
             X=0
@@ -60,8 +72,8 @@ jobs:
             Z=0
           fi
 
-          if [ -f $LAST_CORE_FILE ]; then
-            LAST_CORE_VERSION=$(cat $LAST_CORE_FILE)
+          if [ -f "$LAST_CORE_FILE" ]; then
+            LAST_CORE_VERSION=$(cat "$LAST_CORE_FILE")
           else
             LAST_CORE_VERSION=""
           fi
@@ -69,19 +81,27 @@ jobs:
           if [ "$CORE_UPDATED" = "true" ] || [ "$CORE_VERSION" != "$LAST_CORE_VERSION" ]; then
             Z=$((Z+1))
             HAS_CHANGED=true
-            echo $CORE_VERSION > $LAST_CORE_FILE
+            echo "$CORE_VERSION" > "$LAST_CORE_FILE"
           fi
 
           NEW_VERSION="$ONLINE_CODENAME $X.$Y.$Z"
 
           if [ "$HAS_CHANGED" = true ]; then
-            echo $NEW_VERSION > $ONLINE_VERSION_FILE
+            echo "$NEW_VERSION" > "$ONLINE_VERSION_FILE"
+
             if [ "$CORE_UPDATED" = "true" ]; then
               git add core
             fi
-            git add $ONLINE_VERSION_FILE $LAST_CORE_FILE
+
+            git add "$ONLINE_VERSION_FILE" "$LAST_CORE_FILE"
+
+            if git diff --cached --quiet; then
+              echo "Nenhuma mudança real para commitar."
+              exit 0
+            fi
+
             git commit -m "Atualizando versão online para '$NEW_VERSION'"
             git push origin HEAD
           fi
-          
-          rm -f $CORE_UPDATED_FILE
+
+          rm -f "$CORE_UPDATED_FILE"
