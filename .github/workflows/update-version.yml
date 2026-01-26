@@ -1,0 +1,80 @@
+name: Atualizar versão online
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout com submódulo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Incrementar patch com base no core
+        run: |
+          CORE_VERSION_FILE=core/VERSION
+          ONLINE_VERSION_FILE=VERSION
+          LAST_CORE_FILE=.last_core_version
+          HAS_CHANGED=false
+
+          # Pegar versão do core
+          CORE_VERSION=$(cat $CORE_VERSION_FILE | awk '{print $2}')
+          echo "Versão do core atual: $CORE_VERSION"
+
+          # Pegar versão online atual
+          ONLINE_CODENAME="Ataraxia"
+          if [ -f $ONLINE_VERSION_FILE ]; then
+            ONLINE_CODENAME=$(cat $ONLINE_VERSION_FILE | awk '{print $1}')
+            ONLINE_VERSION=$(cat $ONLINE_VERSION_FILE | awk '{print $2}')
+            IFS='.' read -r X Y Z <<< "$ONLINE_VERSION"
+            echo "Versão online atual: $ONLINE_CODENAME $X.$Y.$Z"
+          else
+            X=0
+            Y=0
+            Z=0
+            echo "Arquivo VERSION não encontrado. Usando versão inicial."
+          fi
+
+          # Pegar última versão do core registrada
+          if [ -f $LAST_CORE_FILE ]; then
+            LAST_CORE_VERSION=$(cat $LAST_CORE_FILE)
+          else
+            LAST_CORE_VERSION=""
+          fi
+
+          echo "Última versão do core registrada: $LAST_CORE_VERSION"
+
+          # Se a versão do core mudou, incrementa patch
+          OLD_VERSION="$ONLINE_CODENAME $X.$Y.$Z"
+          if [ "$CORE_VERSION" != "$LAST_CORE_VERSION" ]; then
+            Z=$((Z+1))
+            HAS_CHANGED=true
+            echo $CORE_VERSION > $LAST_CORE_FILE
+            echo "Core atualizado. Incrementando patch..."
+          fi
+
+          NEW_VERSION="$ONLINE_CODENAME $X.$Y.$Z"
+          echo "Nova versão online: $NEW_VERSION"
+
+          # Verificar se há mudança antes de commitar
+          if [ "$HAS_CHANGED" = true ]; then
+            # Atualizar arquivo VERSION
+            echo $NEW_VERSION > $ONLINE_VERSION_FILE
+            git add $ONLINE_VERSION_FILE $LAST_CORE_FILE
+            git commit -m "Atualizando versão online para '$NEW_VERSION'"
+            git push origin HEAD
+            echo "Versão atualizada e commit realizado."
+          else
+            echo "Nenhuma mudança detectada. Nenhum commit necessário."
+          fi
