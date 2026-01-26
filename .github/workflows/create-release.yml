@@ -31,7 +31,7 @@ jobs:
         id: changelog_online
         run: |
           if [ -f CHANGELOG ]; then
-            ONLINE_CHANGELOG=$(cat CHANGELOG)
+            ONLINE_CHANGELOG=$(cat CHANGELOG.md)
           else
             ONLINE_CHANGELOG="Sem changelog do online."
           fi
@@ -41,7 +41,7 @@ jobs:
         id: changelog_core
         run: |
           if [ -f core/CHANGELOG ]; then
-            CORE_CHANGELOG=$(cat core/CHANGELOG)
+            CORE_CHANGELOG=$(cat core/CHANGELOG.md)
           else
             CORE_CHANGELOG="Sem changelog do core."
           fi
