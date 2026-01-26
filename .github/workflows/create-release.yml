@@ -31,21 +31,25 @@ jobs:
         id: changelog_online
         run: |
           if [ -f CHANGELOG.md ]; then
-            ONLINE_CHANGELOG=$(cat CHANGELOG.md)
+            cat CHANGELOG.md > online_changelog.txt
           else
-            ONLINE_CHANGELOG="Sem changelog do online."
+            echo "Sem changelog do online." > online_changelog.txt
           fi
-          echo "online_body=$ONLINE_CHANGELOG" >> $GITHUB_OUTPUT
+          echo "online_body<<EOF" >> $GITHUB_OUTPUT
+          cat online_changelog.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Ler CHANGELOG do core
         id: changelog_core
         run: |
           if [ -f core/CHANGELOG.md ]; then
-            CORE_CHANGELOG=$(cat core/CHANGELOG.md)
+            cat core/CHANGELOG.md > core_changelog.txt
           else
-            CORE_CHANGELOG="Sem changelog do core."
+            echo "Sem changelog do core." > core_changelog.txt
           fi
-          echo "core_body=$CORE_CHANGELOG" >> $GITHUB_OUTPUT
+          echo "core_body<<EOF" >> $GITHUB_OUTPUT
+          cat core_changelog.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Criar Release
         uses: actions/create-release@v1
