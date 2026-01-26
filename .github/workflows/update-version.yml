@@ -21,12 +21,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Atualizar submódulo core
+        run: |
+          echo "Atualizando submódulo core..."
+          git submodule update --remote --merge core
+          
+          # Verificar se o submódulo foi atualizado
+          if git diff --name-only HEAD | grep -q "core"; then
+            echo "Submódulo core atualizado!"
+            echo "true" > .core_updated
+          else
+            echo "Submódulo core não teve alterações."
+            echo "false" > .core_updated
+          fi
+
       - name: Incrementar patch com base no core
         run: |
           CORE_VERSION_FILE=core/VERSION
           ONLINE_VERSION_FILE=VERSION
           LAST_CORE_FILE=.last_core_version
+          CORE_UPDATED_FILE=.core_updated
           HAS_CHANGED=false
+
+          # Verificar se o submódulo foi atualizado
+          CORE_UPDATED=$(cat $CORE_UPDATED_FILE)
+          echo "Submódulo core atualizado: $CORE_UPDATED"
 
           # Pegar versão do core
           CORE_VERSION=$(cat $CORE_VERSION_FILE | awk '{print $2}')
@@ -55,9 +74,10 @@ jobs:
 
           echo "Última versão do core registrada: $LAST_CORE_VERSION"
 
-          # Se a versão do core mudou, incrementa patch
-          OLD_VERSION="$ONLINE_CODENAME $X.$Y.$Z"
-          if [ "$CORE_VERSION" != "$LAST_CORE_VERSION" ]; then
+          # Verificar se deve incrementar versão
+          # Condição 1: Submódulo foi atualizado
+          # Condição 2: Versão do core mudou (backup check)
+          if [ "$CORE_UPDATED" = "true" ] || [ "$CORE_VERSION" != "$LAST_CORE_VERSION" ]; then
             Z=$((Z+1))
             HAS_CHANGED=true
             echo $CORE_VERSION > $LAST_CORE_FILE
@@ -71,6 +91,13 @@ jobs:
           if [ "$HAS_CHANGED" = true ]; then
             # Atualizar arquivo VERSION
             echo $NEW_VERSION > $ONLINE_VERSION_FILE
+            
+            # Adicionar mudanças do submódulo (se houver)
+            if [ "$CORE_UPDATED" = "true" ]; then
+              git add core
+              echo "Adicionando mudanças do submódulo core..."
+            fi
+            
             git add $ONLINE_VERSION_FILE $LAST_CORE_FILE
             git commit -m "Atualizando versão online para '$NEW_VERSION'"
             git push origin HEAD
@@ -78,3 +105,7 @@ jobs:
           else
             echo "Nenhuma mudança detectada. Nenhum commit necessário."
           fi
+          
+          # Limpar arquivo temporário
+          rm -f $CORE_UPDATED_FILE
+          
