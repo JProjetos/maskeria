@@ -1,0 +1,63 @@
+name: Criar release do Online
+
+on:
+  push:
+    paths:
+      - "VERSION"
+    branches:
+      - main
+
+jobs:
+  release-online:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Ler versão do online
+        id: version
+        run: |
+          CODENAME=$(awk '{print $1}' VERSION)
+          VERSION=$(awk '{print $2}' VERSION)
+          echo "codename=$CODENAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Ler CHANGELOG do online
+        id: changelog_online
+        run: |
+          if [ -f CHANGELOG ]; then
+            ONLINE_CHANGELOG=$(cat CHANGELOG)
+          else
+            ONLINE_CHANGELOG="Sem changelog do online."
+          fi
+          echo "online_body=$ONLINE_CHANGELOG" >> $GITHUB_OUTPUT
+
+      - name: Ler CHANGELOG do core
+        id: changelog_core
+        run: |
+          if [ -f core/CHANGELOG ]; then
+            CORE_CHANGELOG=$(cat core/CHANGELOG)
+          else
+            CORE_CHANGELOG="Sem changelog do core."
+          fi
+          echo "core_body=$CORE_CHANGELOG" >> $GITHUB_OUTPUT
+
+      - name: Criar Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: "${{ steps.version.outputs.codename }} ${{ steps.version.outputs.version }}"
+          body: |
+            Changelog do online:
+            ${{ steps.changelog_online.outputs.online_body }}
+
+            Changelog do core:
+            ${{ steps.changelog_core.outputs.core_body }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
