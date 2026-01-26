@@ -2,7 +2,7 @@ name: Atualizar versão online
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -108,4 +108,3 @@ jobs:
           
           # Limpar arquivo temporário
           rm -f $CORE_UPDATED_FILE
-          
