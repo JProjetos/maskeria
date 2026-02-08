@@ -1,0 +1,82 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 10%;
+}
+
+header > a {
+    color: white;
+}
+
+header nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.wiki {
+    position: relative;
+    font-weight: bold;
+    background-color: white;
+    color: black;
+    padding: .75rem 1.5rem;
+}
+
+.wiki::before {
+    position: absolute;
+    content: "";
+    z-index: -1;
+
+    transition: 100ms ease-in-out all;
+
+    background: transparent;
+
+    inset: -20px;
+}
+
+.wiki:hover::before {
+    inset: -20px;
+    filter: blur(30px);
+
+    background: radial-gradient(
+        circle,
+        rgba(255,255,255,0.6),
+        rgba(255,255,255,0.1),
+        transparent 80%
+    );
+}
+
+.play {
+    position: relative;
+    font-weight: bold;
+    background-color: dodgerblue;
+    color: white;
+    padding: .75rem 1.5rem;
+}
+
+.play::before {
+    position: absolute;
+    content: "";
+    z-index: -1;
+
+    transition: 400ms ease-in-out all;
+
+    background: transparent;
+
+    inset: -20px;
+    filter: blur(20px);
+}
+
+.play:hover::before {
+    inset: -20px;
+    filter: blur(30px);
+
+    background: radial-gradient(
+        circle,
+        rgba(30,144,255,0.6),
+        rgba(30,144,255,0.1),
+        transparent 80%
+    );
+}
