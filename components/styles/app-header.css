@@ -18,6 +18,7 @@ header nav {
 
 .wiki {
     position: relative;
+    z-index: 2;
     font-weight: bold;
     background-color: white;
     color: black;
@@ -27,7 +28,7 @@ header nav {
 .wiki::before {
     position: absolute;
     content: "";
-    z-index: -1;
+    z-index: 1;
 
     transition: 100ms ease-in-out all;
 
@@ -50,6 +51,7 @@ header nav {
 
 .play {
     position: relative;
+    z-index: 2;
     font-weight: bold;
     background-color: dodgerblue;
     color: white;
@@ -59,7 +61,7 @@ header nav {
 .play::before {
     position: absolute;
     content: "";
-    z-index: -1;
+    z-index: 1;
 
     transition: 400ms ease-in-out all;
 
