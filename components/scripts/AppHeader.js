@@ -3,13 +3,15 @@ class AppHeader extends HTMLElement {
 
     async connectedCallback() {
 
+        const root = new URL(".", document.baseURI).pathname;
+
         if (!document.querySelector(
             `link[data-component="${AppHeader.tag}"]`
         )) {
 
             let link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = `/components/styles/${AppHeader.tag}.css`;
+            link.href = `${root}components/styles/${AppHeader.tag}.css`;
             link.dataset.component = AppHeader.tag;
 
             document.head.appendChild(link);
@@ -17,12 +19,12 @@ class AppHeader extends HTMLElement {
 
         this.innerHTML = `
         <header>
-            <a class="home" href="/index.html">
+            <a class="home" href="${root}index.html">
                 <img src="" alt="Logo do Maskeria">
             </a>
             <nav>
-                <a class="wiki" href="/wiki.html">Wiki</a>
-                <a class="play" href="/play.html">Jogar</a>
+                <a class="wiki" href="${root}wiki.html">Wiki</a>
+                <a class="play" href="${root}play.html">Jogar</a>
             </nav>
         </header>
         `;
