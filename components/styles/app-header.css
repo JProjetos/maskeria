@@ -1,22 +1,32 @@
-header {
+app-header header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 10%;
 }
 
-header > a {
-    color: white;
+app-header.dark header {
+    background-color: black;
 }
 
-header > nav {
+app-header header > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+app-header header > a > img {
+    height: 25%;
+}
+
+app-header header > nav {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
 }
 
-header .wiki {
+app-header header .wiki {
     position: relative;
     z-index: 2;
     font-weight: bold;
@@ -25,7 +35,7 @@ header .wiki {
     padding: .75rem 1.5rem;
 }
 
-header .wiki::before {
+app-header header .wiki::before {
     position: absolute;
     content: "";
     z-index: 1;
@@ -37,7 +47,7 @@ header .wiki::before {
     inset: -10px;
 }
 
-header .wiki:hover::before {
+app-header header .wiki:hover::before {
     inset: -10px;
     filter: blur(30px);
 
@@ -49,7 +59,7 @@ header .wiki:hover::before {
     );
 }
 
-header .play {
+app-header header .play {
     position: relative;
     z-index: 2;
     font-weight: bold;
@@ -58,7 +68,7 @@ header .play {
     padding: .75rem 1.5rem;
 }
 
-header .play::before {
+app-header header .play::before {
     position: absolute;
     content: "";
     z-index: 1;
@@ -71,7 +81,7 @@ header .play::before {
     filter: blur(20px);
 }
 
-header .play:hover::before {
+app-header header .play:hover::before {
     inset: -10px;
     filter: blur(30px);
 
