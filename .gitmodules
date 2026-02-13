@@ -1,3 +1,3 @@
-[submodule "game/core"]
-	path = game/core
+[submodule "game/src/core"]
+	path = game/src/core
 	url = https://github.com/JProjetos/maskeria-core.git

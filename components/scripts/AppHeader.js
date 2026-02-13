@@ -6,7 +6,7 @@ class AppHeader extends HTMLElement {
         // Define root dependendo do ambiente
         const isGithubPages = window.location.hostname === "jprojetos.github.io";
         const root = isGithubPages
-            ? "https://jprojetos.github.io/maskeria/"
+            ? "/maskeria/"
             : "/";
 
         if (!document.querySelector(`link[data-component="${AppHeader.tag}"]`)) {
@@ -24,7 +24,7 @@ class AppHeader extends HTMLElement {
             </a>
             <nav>
                 <a class="wiki" href="${root}wiki.html">Wiki</a>
-                <a class="play" href="${root}game/play.html">Jogar</a>
+                <a class="play" href="${root}play.html">Jogar</a>
             </nav>
         </header>
         `;
