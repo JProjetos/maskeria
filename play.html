@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles/play.css">
 
     <script src="libs/jquery.js"></script>
+    <script type="module" src="rootSetup.js"></script>
     <script type="module" src="components/scripts/AppHeader.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,16 +19,11 @@
 </head>
 
 <body>
-    <app-header></app-header>
+    <app-header class="dark"></app-header>
     <div id="game-wrapper">
         <canvas id="game"></canvas>
         <div id="ui"></div>
     </div>
 </body>
-
-<script type="module">
-    import Game from "./Game.js";
-    let game = new Game();
-</script>
 
 </html>
