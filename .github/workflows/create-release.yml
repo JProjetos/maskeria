@@ -28,50 +28,87 @@ jobs:
           echo "codename=$CODENAME" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Restaurar último changelog do cache
+        uses: actions/cache@v3
+        with:
+          path: .last_online_changelog
+          key: last-online-changelog-${{ github.ref_name }}
+          restore-keys: |
+            last-online-changelog-${{ github.ref_name }}
+            last-online-changelog-
+
       - name: Verificar mudanças no CHANGELOG do online
         id: changelog_online
         run: |
-          LAST_FILE=".last_online_changelog"
           if [ -f CHANGELOG.md ]; then
             ONLINE_CHANGELOG=$(cat CHANGELOG.md)
           else
-            ONLINE_CHANGELOG="Sem changelog do online."
+            ONLINE_CHANGELOG=""
           fi
 
-          if [ -f $LAST_FILE ]; then
-            LAST_CHANGELOG=$(cat $LAST_FILE)
-          else
-            LAST_CHANGELOG=""
-          fi
-
-          if [ "$ONLINE_CHANGELOG" = "$LAST_CHANGELOG" ]; then
-            echo "online_changed=false" >> $GITHUB_OUTPUT
-            echo "online_body<<EOF" >> $GITHUB_OUTPUT
-            if [ -f $LAST_FILE ]; then
-              cat $LAST_FILE >> $GITHUB_OUTPUT
-            else
-              echo "Sem changelog anterior." >> $GITHUB_OUTPUT
+          CHANGELOG_CHANGED=true
+          if [ -f .last_online_changelog ]; then
+            LAST_CHANGELOG=$(cat .last_online_changelog)
+            if [ "$ONLINE_CHANGELOG" = "$LAST_CHANGELOG" ]; then
+              CHANGELOG_CHANGED=false
             fi
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "online_changed=true" >> $GITHUB_OUTPUT
-            echo "$ONLINE_CHANGELOG" > $LAST_FILE
-            echo "online_body<<EOF" >> $GITHUB_OUTPUT
-            echo "$ONLINE_CHANGELOG" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
           fi
 
-      - name: Ler CHANGELOG do core
+          echo "changed=$CHANGELOG_CHANGED" >> $GITHUB_OUTPUT
+
+          echo "online_body<<EOF" >> $GITHUB_OUTPUT
+          if [ "$CHANGELOG_CHANGED" = "false" ]; then
+            echo "Sem alterações no online." >> $GITHUB_OUTPUT
+          else
+            echo "$ONLINE_CHANGELOG" >> $GITHUB_OUTPUT
+          fi
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Restaurar último changelog do core
+        uses: actions/cache@v3
+        with:
+          path: .last_core_changelog
+          key: last-core-changelog-${{ github.ref_name }}
+          restore-keys: |
+            last-core-changelog-${{ github.ref_name }}
+            last-core-changelog-
+
+      - name: Verificar mudanças no CHANGELOG do core
         id: changelog_core
         run: |
           if [ -f game/CHANGELOG.md ]; then
             CORE_CHANGELOG=$(cat game/CHANGELOG.md)
           else
-            CORE_CHANGELOG="Sem changelog do core."
+            CORE_CHANGELOG=""
           fi
+
+          CORE_CHANGED=true
+          if [ -f .last_core_changelog ]; then
+            LAST_CORE_CHANGELOG=$(cat .last_core_changelog)
+            if [ "$CORE_CHANGELOG" = "$LAST_CORE_CHANGELOG" ]; then
+              CORE_CHANGED=false
+            fi
+          fi
+
+          echo "changed=$CORE_CHANGED" >> $GITHUB_OUTPUT
+
           echo "core_body<<EOF" >> $GITHUB_OUTPUT
-          echo "$CORE_CHANGELOG" >> $GITHUB_OUTPUT
+          if [ "$CORE_CHANGED" = "false" ]; then
+            echo "Sem alterações no core." >> $GITHUB_OUTPUT
+          else
+            echo "$CORE_CHANGELOG" >> $GITHUB_OUTPUT
+          fi
           echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Salvar changelog online no cache
+        if: steps.changelog_online.outputs.changed == 'true'
+        run: |
+          cp CHANGELOG.md .last_online_changelog
+
+      - name: Salvar changelog core no cache
+        if: steps.changelog_core.outputs.changed == 'true'
+        run: |
+          cp game/CHANGELOG.md .last_core_changelog
 
       - name: Criar Release
         uses: actions/create-release@v1
@@ -79,10 +116,10 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           release_name: "${{ steps.version.outputs.codename }} ${{ steps.version.outputs.version }}"
           body: |
-            Changelog do online:
+            # Changelog do online
             ${{ steps.changelog_online.outputs.online_body }}
 
-            Changelog do core:
+            # Changelog do core
             ${{ steps.changelog_core.outputs.core_body }}
           draft: false
           prerelease: false
