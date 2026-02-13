@@ -32,8 +32,8 @@ jobs:
 
       - name: Atualizar submódulo core
         run: |
-          git submodule update --remote --merge game/src/core
-          if git status --porcelain | grep -q "game/src/core"; then
+          git submodule update --remote --merge game
+          if git status --porcelain | grep -q "game"; then
             echo "true" > .core_updated
           else
             echo "false" > .core_updated
@@ -41,7 +41,7 @@ jobs:
 
       - name: Incrementar patch com base no core
         run: |
-          CORE_VERSION_FILE=game/src/core/VERSION
+          CORE_VERSION_FILE=game/VERSION
           ONLINE_VERSION_FILE=VERSION
           LAST_CORE_FILE=.last_core_version
           CORE_UPDATED_FILE=.core_updated
@@ -93,7 +93,7 @@ jobs:
             echo "$NEW_VERSION" > "$ONLINE_VERSION_FILE"
 
             if [ "$CORE_UPDATED" = "true" ]; then
-              git add game/src/core
+              git add game
             fi
 
             git add "$ONLINE_VERSION_FILE" "$LAST_CORE_FILE"
