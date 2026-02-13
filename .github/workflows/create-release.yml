@@ -60,8 +60,8 @@ jobs:
       - name: Ler CHANGELOG do core
         id: changelog_core
         run: |
-          if [ -f core/CHANGELOG.md ]; then
-            CORE_CHANGELOG=$(cat core/CHANGELOG.md)
+          if [ -f game/src/core/CHANGELOG.md ]; then
+            CORE_CHANGELOG=$(cat game/src/core/CHANGELOG.md)
           else
             CORE_CHANGELOG="Sem changelog do core."
           fi
