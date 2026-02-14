@@ -1,4 +1,4 @@
-import { AssetResolver } from "../../game/src/core/utils/AssetResolver.js";
+import { PathResolver } from "../../game/src/core/utils/PathResolver.js";
 import { CSSFileLoader } from "../../game/src/core/utils/CSSFileLoader.js";
 
 class AppHeader extends HTMLElement {
@@ -6,22 +6,22 @@ class AppHeader extends HTMLElement {
 
     async connectedCallback() {
 
-        CSSFileLoader.load(AssetResolver.from("components", `styles/${AppHeader.tag}.css`));
+        CSSFileLoader.load(PathResolver.from("components", `styles/${AppHeader.tag}.css`));
 
         let logo;
         if(this.classList.contains("dark") || this.classList.contains("transparent-dark"))
-            logo = AssetResolver.from("public", "logo/dark-border.svg");
+            logo = PathResolver.from("public", "logo/dark-border.svg");
         else
-            logo = AssetResolver.from("public", "logo/light-border.svg");
+            logo = PathResolver.from("public", "logo/light-border.svg");
 
         this.innerHTML = `
         <header>
-            <a class="home" href="${AssetResolver.resolve("index.html")}">
+            <a class="home" href="${PathResolver.resolve("index.html")}">
                 <img src="${logo}" alt="Logo do Maskeria">
             </a>
             <nav>
-                <a class="wiki" href="${AssetResolver.resolve("wiki.html")}">Wiki</a>
-                <a class="play" href="${AssetResolver.resolve("play.html")}">Jogar</a>
+                <a class="wiki" href="${PathResolver.resolve("wiki.html")}">Wiki</a>
+                <a class="play" href="${PathResolver.resolve("play.html")}">Jogar</a>
             </nav>
         </header>
         `;

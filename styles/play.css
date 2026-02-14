@@ -8,7 +8,7 @@ app-header {
     background-color: black;
 }
 
-#game-wrapper {
+#game {
     position: relative;
     display: flex;
     justify-content: center;
