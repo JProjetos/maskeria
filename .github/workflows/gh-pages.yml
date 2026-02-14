@@ -1,0 +1,58 @@
+name: Deploy GH Pages com submódulo build
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [game-release]
+  workflow_dispatch:
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+      - name: Build / copiar arquivos do submódulo
+        run: |
+          cd game
+          # Aqui você pode colocar seu comando de build, ex: npm run build
+          # Se não houver build, apenas copie os arquivos que precisa
+          mkdir -p ../tmp_game
+          cp -r src assets ../tmp_game/
+          cd ..
+
+      - name: Checkout gh-pages
+        run: |
+          git fetch origin gh-pages || true
+          git checkout gh-pages || git checkout --orphan gh-pages
+          git reset --hard
+
+      - name: Atualizar conteúdo
+        run: |
+          # Limpa tudo
+          git rm -rf . || true
+
+          # Pega todos os arquivos do main
+          git --work-tree=. checkout main -- .
+
+          # Substitui game pelo build real
+          rm -rf game
+          mv tmp_game game
+
+      - name: Commit e push
+        run: |
+          git add .
+          git commit -m "Atualizar GH Pages com build do submódulo" || echo "Sem mudanças"
+          git push origin gh-pages --force
