@@ -27,3 +27,9 @@ app-header {
     justify-content: center;
     align-items: center;
 }
+
+#ui img {
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
