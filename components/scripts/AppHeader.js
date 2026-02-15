@@ -1,4 +1,4 @@
-import { PathResolver } from "../../game/src/core/utils/PathResolver.js";
+import { PathResolver } from "../../shared/PathResolver.js";
 import { CSSFileLoader } from "../../game/src/core/utils/CSSFileLoader.js";
 
 class AppHeader extends HTMLElement {

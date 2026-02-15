@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,6 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
     <script src="libs/jquery.js"></script>
-    <script type="module" src="rootSetup.js"></script>
     <script type="module" src="components/scripts/AppHeader.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +29,7 @@
 
 <script type="module">
     import { Game } from "./game/src/Game.js";
-    let game = new Game();
+    let game = new Game({});
     game.start();
 </script>
 
