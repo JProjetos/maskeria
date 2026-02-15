@@ -4,7 +4,7 @@ export class PathResolver {
         return new URL("../", import.meta.url);
     }
 
-    static base = new URL("/", window.location.origin);
+    static base = this.detectBase();
 
     static setBase(root) {
         if (!root.endsWith("/")) root += "/";
@@ -16,14 +16,14 @@ export class PathResolver {
     }
 
     static paths = {
-        components: "components/",
-        assets: "game/assets/",
-        rootStyles: "styles/", // pasta de estilos das páginas do root
-        styles: "game/src/styles/", // pasta de estilos do jogo
-        core: "game/src/core",
-        public: "public/",
         root: " ",
-        game: "game/"
+        components: "components/",
+        game: "game/",
+        libs: "libs/",
+        public: "public/",
+        shared: "shared/",
+        styles: "styles/",
+        wiki: "wiki/",
     };
 
     static from(type, file) {
