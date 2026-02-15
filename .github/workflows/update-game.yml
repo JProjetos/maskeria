@@ -1,0 +1,36 @@
+name: Atualizar jogo
+
+on:
+  repository_dispatch:
+    types: [game-release]
+
+jobs:
+  update-core:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT_GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Atualizando module para o último remote
+        run: |
+          git submodule update --remote --recursive
+          git add game
+          
+      - name: Realizar commit se houverem mudanças
+        run: |
+          if ! git diff --cached --quiet; then
+            git commit -m "Automático: atualizando versão do jogo para ${{ github.event.client_payload.game_version }} (commit ${{
+              github.event.client_payload.commit_hash }})"
+            git push
+          else
+            echo "Sem commits novos"
+          fi
