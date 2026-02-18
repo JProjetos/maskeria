@@ -9,48 +9,48 @@ app-header.dark header {
     background-color: black;
 }
 
-app-header header > a {
+app-header header > a,
+app-header header > nav {
     display: flex;
-    justify-content: center;
     align-items: center;
-}
-
-app-header header > a > img {
-    height: 25%;
 }
 
 app-header header > nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     gap: 1.5rem;
 }
 
-app-header header .wiki {
+app-header header .wiki,
+app-header header .play {
     position: relative;
     z-index: 2;
     font-weight: bold;
-    background-color: white;
-    color: black;
     padding: .75rem 1.5rem;
+    overflow: hidden;
 }
 
-app-header header .wiki::before {
-    position: absolute;
+app-header header .wiki {
+    background: white;
+    color: black;
+}
+
+app-header header .play {
+    background: dodgerblue;
+    color: white;
+}
+
+app-header header .wiki::before,
+app-header header .play::before {
     content: "";
-    z-index: 1;
-
-    transition: 100ms ease-in-out all;
-
-    background: transparent;
-
+    position: absolute;
     inset: -10px;
+    z-index: -1;
+    opacity: 0;
+    filter: blur(25px);
+    transition: opacity 300ms ease, filter 300ms ease;
 }
 
 app-header header .wiki:hover::before {
-    inset: -10px;
-    filter: blur(30px);
-
+    opacity: 1;
     background: radial-gradient(
         circle,
         rgba(255,255,255,0.6),
@@ -59,36 +59,130 @@ app-header header .wiki:hover::before {
     );
 }
 
-app-header header .play {
-    position: relative;
-    z-index: 2;
-    font-weight: bold;
-    background-color: dodgerblue;
-    color: white;
-    padding: .75rem 1.5rem;
-}
-
-app-header header .play::before {
-    position: absolute;
-    content: "";
-    z-index: 1;
-
-    transition: 400ms ease-in-out all;
-
-    background: transparent;
-
-    inset: -10px;
-    filter: blur(20px);
-}
-
 app-header header .play:hover::before {
-    inset: -10px;
-    filter: blur(30px);
-
+    opacity: 1;
     background: radial-gradient(
         circle,
         rgba(30,144,255,0.6),
         rgba(30,144,255,0.1),
         transparent 80%
     );
+}
+
+
+app-header header .menu {
+    display: none;
+}
+
+app-header aside {
+    display: none;
+}
+
+@media (max-width: 1000px) {
+    app-header header > nav {
+        display: none;
+    }
+
+    app-header header > a img,
+    app-header aside .home img {
+        height: 47px;
+    }
+
+    app-header header .menu {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 40px;
+        height: 40px;
+
+        background: dodgerblue;
+        border: none;
+        cursor: pointer;
+
+        transition: transform 200ms ease;
+    }
+
+    app-header header .menu.active {
+        background-color: black;
+        filter: invert(1);
+    }
+
+    app-header header .menu:active {
+        transform: scale(1.05);
+    }
+
+    app-header header .menu img {
+        width: 60%;
+        pointer-events: none;
+    }
+
+    app-header aside {
+        position: fixed;
+        z-index: 3;
+        top: 0;
+        left: 0;
+
+        width: 220px;
+        height: 100dvh;
+        max-height: 100dvh;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        padding: 2rem;
+
+        background: black;
+        box-shadow: 4px 0 40px rgba(0,0,0,0.4);
+
+        transform: translateX(calc(-100% - 2rem));
+        transition: transform 400ms cubic-bezier(.25,.8,.25,1);
+    }
+
+    app-header aside.active {
+        transform: translateX(0);
+    }
+
+    app-header aside .main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    app-header aside .main .close {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        width: 30px;
+        height: 30px;
+        
+        background-color: black;
+        filter: invert(1);
+        border: none;
+    }
+
+    app-header aside nav {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    app-header aside nav a {
+        color: white;
+        padding: .75rem 0;
+        transition: 200ms ease-in-out all;
+    }
+
+    app-header aside nav a:hover {
+        padding-left: 1rem;
+        font-weight: 800;
+    }
 }
